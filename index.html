@@ -1,0 +1,75 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="js/aframe-v1.5.0.min.js"></script>
+    <script src="js/mindar-image-aframe.prod.js"></script>
+
+    <style>
+      /* You can still apply some basic enhancement to the target image */
+      img {
+        filter: contrast(200%) brightness(120%);
+      }
+    </style>
+
+    <script>
+      // Image Contrast Enhancement Function
+      function enhanceImageContrast(imgElement) {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+
+          // Set canvas size to match the image size
+          canvas.width = imgElement.width;
+          canvas.height = imgElement.height;
+
+          // Draw the image on the canvas
+          ctx.drawImage(imgElement, 0, 0, imgElement.width, imgElement.height);
+
+          // Get the image data from the canvas
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+
+          // Increase the contrast of the image
+          const contrast = 100;  // Increase contrast level here (adjust as needed)
+          const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+
+          for (let i = 0; i < data.length; i += 4) {
+              data[i] = factor * (data[i] - 128) + 128;     // Red channel
+              data[i + 1] = factor * (data[i + 1] - 128) + 128; // Green channel
+              data[i + 2] = factor * (data[i + 2] - 128) + 128; // Blue channel
+              // data[i + 3] is the alpha channel (opacity), leave it unchanged
+          }
+
+          // Update the canvas with the enhanced image data
+          ctx.putImageData(imageData, 0, 0);
+
+          // Return the enhanced image as a Data URL
+          return canvas.toDataURL();
+      }
+
+      // Preprocess and enhance the image when the page loads
+      window.onload = function() {
+          const imgElement = document.getElementById("card");
+
+          // Wait for the image to load before processing
+          imgElement.onload = function() {
+              const enhancedImageURL = enhanceImageContrast(imgElement);
+              imgElement.src = enhancedImageURL;  // Replace the original image with enhanced one
+          };
+      };
+    </script>
+</head>
+<body>
+    <a-scene mindar-image="imageTargetSrc: assets/milkshake_marker.mind; filterMinCF: 0.001; uiLoading:no; uiScanning:no;" embedded color-space="sRGB" renderer="logarithmicDepthBuffer: true;">
+        <a-assets>
+            <!-- The image will be processed and enhanced before being displayed -->
+            <img id="card" src="assets/milkshake_coloured.png" onerror="console.error('Error loading card.png');" />
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-image src="#card" position="0 0 0" height="0.552" width="1" rotation="0 0 0"></a-image>
+        </a-entity>
+    </a-scene>
+</body>
+</html>

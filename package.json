@@ -1,0 +1,14 @@
+{
+  "name": "your-project-name",
+  "version": "1.0.0",
+  "description": "A project for serving files over HTTPS",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server -S -C cert.pem -K key.pem"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "http-server": "^0.12.3"
+  }
+}
